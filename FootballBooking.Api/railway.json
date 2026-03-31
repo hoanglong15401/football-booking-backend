@@ -1,0 +1,7 @@
+{
+  "build": {
+    "builder": "dotnet",
+    "build_command": "dotnet publish -c Release -o ./publish",
+    "start_command": "dotnet FootballBooking.Api.dll"
+  }
+}

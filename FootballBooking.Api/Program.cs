@@ -1,4 +1,5 @@
-﻿using FootballBooking.Api.Data;
+﻿```csharp
+using FootballBooking.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -9,7 +10,6 @@ var builder = WebApplication.CreateBuilder(args);
 // ========================
 // Add Services
 // ========================
-
 builder.Services.AddControllers();
 
 // DbContext - MySQL
@@ -37,7 +37,10 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowReact",
         policy =>
         {
-            policy.WithOrigins("http://localhost:3000")
+            policy.WithOrigins(
+                    "http://localhost:3000",
+                    "https://football-booking-frontend.onrender.com"
+                )
                   .AllowAnyHeader()
                   .AllowAnyMethod();
         });
@@ -72,13 +75,12 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// ⭐ QUAN TRỌNG
+// Authorization
 builder.Services.AddAuthorization();
 
 // ========================
 // Build App
 // ========================
-
 var app = builder.Build();
 
 // Seed data
@@ -92,13 +94,12 @@ using (var scope = app.Services.CreateScope())
 // Middleware
 // ========================
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// 🔥 BẬT SWAGGER CHO PRODUCTION
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseCors("AllowReact");
+
 // app.UseHttpsRedirection();
 
 app.UseAuthentication();
@@ -106,8 +107,9 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// Dynamic port cho Railway
+// Dynamic port cho Render / Railway
 var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
 app.Urls.Add($"http://*:{port}");
 
 app.Run();
+```

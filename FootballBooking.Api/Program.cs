@@ -90,26 +90,33 @@ using (var scope = app.Services.CreateScope())
     DbInitializer.Seed(db);
 }
 
+```csharp
 // ========================
 // Middleware
 // ========================
 
-// 🔥 BẬT SWAGGER CHO PRODUCTION
 app.UseSwagger();
-app.UseSwaggerUI();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Football Booking API V1");
+    c.RoutePrefix = "swagger"; // giữ swagger tại /swagger
+});
 
 app.UseCors("AllowReact");
 
-// app.UseHttpsRedirection();
+// test route root để tránh 404
+app.MapGet("/", () => "Football Booking API is running 🚀");
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
-// Dynamic port cho Render / Railway
+// Dynamic port cho Render
 var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
 app.Urls.Add($"http://*:{port}");
 
 app.Run();
+```
+
 ```

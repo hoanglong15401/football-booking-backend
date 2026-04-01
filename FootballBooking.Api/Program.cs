@@ -9,17 +9,30 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     if (!string.IsNullOrEmpty(databaseUrl))
     {
-        options.UseMySql(databaseUrl, ServerVersion.AutoDetect(databaseUrl));
+        var uri = new Uri(databaseUrl);
+        var userInfo = uri.UserInfo.Split(':');
+
+        var connectionString =
+            $"Server={uri.Host};" +
+            $"Port={uri.Port};" +
+            $"Database={uri.AbsolutePath.Trim('/')};" +
+            $"User={userInfo[0]};" +
+            $"Password={userInfo[1]};" +
+            $"SslMode=Required;";
+
+        options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
     }
     else
     {
         options.UseMySql(
             builder.Configuration.GetConnectionString("DefaultConnection"),
-            ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection"))
+            ServerVersion.AutoDetect(
+                builder.Configuration.GetConnectionString("DefaultConnection"))
         );
     }
 });

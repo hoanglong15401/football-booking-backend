@@ -29,11 +29,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     }
     else
     {
-        options.UseMySql(
-            builder.Configuration.GetConnectionString("DefaultConnection"),
-            ServerVersion.AutoDetect(
-                builder.Configuration.GetConnectionString("DefaultConnection"))
-        );
+        var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+        options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
     }
 });
 
@@ -78,6 +75,14 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
+
+
+// ⭐ QUAN TRỌNG — migrate DB khi start
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
 
 if (app.Environment.IsDevelopment() || true)
 {

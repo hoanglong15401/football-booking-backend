@@ -14,6 +14,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 {
     if (!string.IsNullOrEmpty(databaseUrl))
     {
+        // Parse DATABASE_URL cho MySQL
         var uri = new Uri(databaseUrl);
         var userInfo = uri.UserInfo.Split(':');
 
@@ -77,18 +78,19 @@ builder.Services.AddAuthorization();
 var app = builder.Build();
 
 
-// ⭐ QUAN TRỌNG — migrate DB khi start
+// 🔥 Bật lỗi chi tiết (QUAN TRỌNG)
+app.UseDeveloperExceptionPage();
+
+
+// ⭐ migrate DB khi start
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.Migrate();
 }
 
-if (app.Environment.IsDevelopment() || true)
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseCors("AllowReact");
 

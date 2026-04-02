@@ -86,7 +86,15 @@ app.UseDeveloperExceptionPage();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.Migrate();
+    try
+    {
+        db.Database.EnsureCreated();
+        db.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine("Migration error: " + ex.Message);
+    }
 }
 
 app.UseSwagger();

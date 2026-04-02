@@ -14,7 +14,6 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 {
     if (!string.IsNullOrEmpty(databaseUrl))
     {
-        // Parse DATABASE_URL cho MySQL
         var uri = new Uri(databaseUrl);
         var userInfo = uri.UserInfo.Split(':');
 
@@ -37,13 +36,12 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowReact",
-        policy =>
-        {
-            policy.AllowAnyOrigin()
-                  .AllowAnyHeader()
-                  .AllowAnyMethod();
-        });
+    options.AddPolicy("AllowReact", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
 });
 
 builder.Services.AddEndpointsApiExplorer();
@@ -77,24 +75,13 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-
-// 🔥 Bật lỗi chi tiết (QUAN TRỌNG)
 app.UseDeveloperExceptionPage();
 
-
-// ⭐ migrate DB khi start
+// ⭐ create tables
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    try
-    {
-        db.Database.EnsureCreated();
-        db.Database.Migrate();
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine("Migration error: " + ex.Message);
-    }
+    db.Database.EnsureCreated();
 }
 
 app.UseSwagger();
